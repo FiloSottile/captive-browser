@@ -7,6 +7,8 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"regexp"
 
 	"github.com/BurntSushi/toml"
@@ -56,26 +58,25 @@ type Config struct {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatal("usage: captive-browser config.toml")
-	}
-	tomlData, err := ioutil.ReadFile(os.Args[1])
+	usr, _ := user.Current()
+	configPath := filepath.Join(usr.HomeDir, ".config", "captive-browser.toml")
+	tomlData, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		log.Fatal("Failed to read config:", err)
+		log.Fatalln("Failed to read config:", err)
 	}
 	var conf Config
 	if err := toml.Unmarshal(tomlData, &conf); err != nil {
-		log.Fatal("Failed to parse config:", err)
+		log.Fatalln("Failed to parse config:", err)
 	}
 
 	log.Printf("Obtaining DHCP DNS server...")
 	out, err := exec.Command("/bin/sh", "-c", conf.DHCP).Output()
 	if err != nil {
-		log.Fatal("Failed to execute dhcp-dns:", err)
+		log.Fatalln("Failed to execute dhcp-dns:", err)
 	}
 	match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}`).Find(out)
 	if match == nil {
-		log.Fatal("IPs not found in dhcp-dns output.")
+		log.Fatalln("IPs not found in dhcp-dns output.")
 	}
 	upstream := string(match)
 
@@ -83,18 +84,18 @@ func main() {
 		Resolver: NewUpstreamResolver(upstream),
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	go func() {
 		log.Printf("SOCKS5 proxy pointing to DNS %s started at %s...", upstream, conf.SOCKS5Addr)
-		log.Fatal(srv.ListenAndServe("tcp", conf.SOCKS5Addr))
+		log.Fatalln(srv.ListenAndServe("tcp", conf.SOCKS5Addr))
 	}()
 
 	log.Printf("Starting browser...")
 	cmd := exec.Command("/bin/sh", "-c", conf.Browser)
 	cmd.Env = append(os.Environ(), "PROXY="+conf.SOCKS5Addr)
 	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	log.Printf("Browser exited, shutting down...")
 }
