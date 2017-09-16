@@ -1,0 +1,22 @@
+# browser is the shell (/bin/sh) command executed once the proxy starts.
+# When browser exits, the proxy exits. An extra env var PROXY is available.
+#
+# Here, we use a separate Chrome instance in Incognito mode, so that
+# it can run (and be waited for) alongside the default one, and that
+# it maintains no state across runs. To configure this browser open a
+# normal window in it, settings will be preserved.
+browser = """
+    open -n -W -a "Google Chrome" --args \
+    --user-data-dir="$HOME/Library/Application Support/Google/Captive" \
+    --proxy-server="socks5://$PROXY" \
+    --host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost" \
+    --no-first-run --new-window --incognito \
+    http://example.com
+"""
+
+# dhcp-dns is the shell (/bin/sh) command executed to obtain the DHCP
+# DNS server address. The first match of an IPv4 regex is used.
+dhcp-dns = "ipconfig getoption en0 domain_name_server"
+
+# socks5-addr is the listen address for the SOCKS5 proxy server.
+socks5-addr = "localhost:1666"
