@@ -16,7 +16,13 @@ browser = """
 
 # dhcp-dns is the shell (/bin/sh) command executed to obtain the DHCP
 # DNS server address. The first match of an IPv4 regex is used.
+# IPv4 only, because let's be real, it's a captive portal.
 dhcp-dns = "ipconfig getoption en0 domain_name_server"
 
 # socks5-addr is the listen address for the SOCKS5 proxy server.
 socks5-addr = "localhost:1666"
+
+# ProTip: to disable the insecure system captive browser see here:
+# https://github.com/drduh/macOS-Security-and-Privacy-Guide#captive-portal
+# If that doesn't work, disable SIP (remember to re-enable it), and
+# rename "/System/Library/CoreServices/Captive Network Assistant.app".
