@@ -20,6 +20,7 @@ type UpstreamResolver struct {
 func NewUpstreamResolver(upstream string) *UpstreamResolver {
 	return &UpstreamResolver{
 		r: &net.Resolver{
+			PreferGo: true,
 			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 				// Redirect all Resolver dials to the upstream.
 				return (&net.Dialer{}).DialContext(ctx, network, net.JoinHostPort(upstream, "53"))
@@ -29,6 +30,7 @@ func NewUpstreamResolver(upstream string) *UpstreamResolver {
 }
 
 func (u *UpstreamResolver) Resolve(ctx context.Context, name string) (context.Context, net.IP, error) {
+	log.Println("Redirected DNS lookup:", name)
 	addrs, err := u.r.LookupIPAddr(ctx, name)
 	if err != nil {
 		return ctx, nil, err
@@ -71,7 +73,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to execute dhcp-dns:", err)
 	}
-	match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}`).Find(out)
+	match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}`).Find(out)
 	if match == nil {
 		log.Fatal("IPs not found in dhcp-dns output.")
 	}
