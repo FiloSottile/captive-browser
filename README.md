@@ -8,6 +8,8 @@ A more secure, dedicated, Chrome-based captive portal browser that automatically
 
 ## Installation
 
+You'll need Chrome and Go 1.9 or newer.
+
 ```
 go get -u github.com/FiloSottile/captive-browser
 cp $(go env GOPATH)/src/github.com/FiloSottile/captive-browser/captive-browser-mac-chrome.toml ~/.config/captive-browser.toml
