@@ -58,8 +58,12 @@ type Config struct {
 }
 
 func main() {
-	usr, _ := user.Current()
-	configPath := filepath.Join(usr.HomeDir, ".config", "captive-browser.toml")
+	configPath := os.Getenv("XDG_CONFIG_HOME")
+	if configPath == "" {
+		usr, _ := user.Current()
+		configPath = filepath.Join(usr.HomeDir, ".config")
+	}
+	configPath = filepath.Join(configPath, "captive-browser.toml")
 	tomlData, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		log.Fatalln("Failed to read config:", err)
