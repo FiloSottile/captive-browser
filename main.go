@@ -73,7 +73,7 @@ func main() {
 	var upstream string
 	if conf.NIC != "" {
 		log.Printf("Obtaining DHCP DNS server from systemd-resolved via DBus...")
-		upstream, err := getDHCPDNSForInterfaceFromDBus(conf.NIC)
+		upstream, err = getDHCPDNSForInterfaceFromDBus(conf.NIC)
 		if err != nil {
 			log.Fatalln("Could not fetch DNS from DBus", err)
 		}
@@ -90,6 +90,8 @@ func main() {
 		}
 		upstream = string(match)
 	}
+
+	log.Println("UPSTREAM ------->", upstream)
 
 	srv, err := socks5.New(&socks5.Config{
 		Resolver: NewUpstreamResolver(upstream),
