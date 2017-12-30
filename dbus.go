@@ -39,20 +39,19 @@ func getDHCPDNSForInterfaceFromDBus(iface string) (string, error) {
 	var variantVal [][]interface{}
 	variantVal = variant.Value().([][]interface{})
 
-	var ipBytes []byte
+	// Check the IP version of the nameserver address that was returned
+	//  2 == AF_INET,  26 == AF_INET6
+	if variantVal[0][0].(int32) != 2 {
+		return "", fmt.Errorf("IPv6 nameserver addresses are not currently supported")
+
+	}
 
 	ipVariantBytes := variantVal[0][1].([]uint8)
-	for _, v := range ipVariantBytes {
-		ipBytes = append(ipBytes, byte(v))
-	}
-	return convertIPBytesToIPAddress(ipBytes), nil
 
-}
+	s := make([]string, len(ipVariantBytes))
 
-func convertIPBytesToIPAddress(b []byte) string {
-	s := make([]string, len(b))
-	for i := range b {
-		s[i] = strconv.Itoa(int(b[i]))
+	for v := range ipVariantBytes {
+		s[v] = strconv.Itoa(int(ipVariantBytes[v]))
 	}
-	return strings.Join(s, ".")
+	return strings.Join(s, "."), nil
 }
