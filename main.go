@@ -77,7 +77,6 @@ func main() {
 		if err != nil {
 			log.Fatalln("Could not fetch DNS from DBus", err)
 		}
-		log.Printf("Discovered DNS from DBus: %+v", upstream)
 	} else {
 		log.Printf("Obtaining DHCP DNS server using dhcp-dns command...")
 		out, err := exec.Command("/bin/sh", "-c", conf.DHCP).Output()
@@ -90,8 +89,6 @@ func main() {
 		}
 		upstream = string(match)
 	}
-
-	log.Println("UPSTREAM ------->", upstream)
 
 	srv, err := socks5.New(&socks5.Config{
 		Resolver: NewUpstreamResolver(upstream),
