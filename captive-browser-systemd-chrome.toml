@@ -1,0 +1,29 @@
+# browser is the shell (/bin/sh) command executed once the proxy starts.
+# When browser exits, the proxy exits. An extra env var PROXY is available.
+#
+# Here, we use a separate Chrome instance in Incognito mode, so that
+# it can run (and be waited for) alongside the default one, and that
+# it maintains no state across runs. To configure this browser open a
+# normal window in it, settings will be preserved.
+browser = """
+    google-chrome \
+    --user-data-dir="$HOME/.google-chrome-captive" \
+    --proxy-server="socks5://$PROXY" \
+    --host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost" \
+    --no-first-run --new-window --incognito \
+    http://example.com
+"""
+
+# For systemd-based OSes that are using systemd-networkd in place
+# of NetworkManager, there is not an easy way to access the DHCP-
+# provided nameservers from the shell, so we'll use DBus instead.
+# For this to work, you need to have systemd-networkd and 
+# systemd-resolved running on your computer and specify the network
+# device name for the 'systemd-network-interface' option:
+#
+# systemd-network-interface = "eth0"
+systemd-network-interface = "wifi0"
+
+# socks5-addr is the listen address for the SOCKS5 proxy server.
+socks5-addr = "localhost:1666"
+
