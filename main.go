@@ -12,7 +12,7 @@ import (
 	"regexp"
 
 	"github.com/BurntSushi/toml"
-	socks5 "github.com/armon/go-socks5"
+	"github.com/armon/go-socks5"
 )
 
 type UpstreamResolver struct {
@@ -55,7 +55,6 @@ type Config struct {
 	SOCKS5Addr string `toml:"socks5-addr"`
 	Browser    string
 	DHCP       string `toml:"dhcp-dns"`
-	NIC        string `toml:"systemd-network-interface"`
 }
 
 func main() {
@@ -70,25 +69,16 @@ func main() {
 		log.Fatalln("Failed to parse config:", err)
 	}
 
-	var upstream string
-	if conf.NIC != "" {
-		log.Printf("Obtaining DHCP DNS server from systemd-resolved via DBus...")
-		upstream, err = getDHCPDNSForInterfaceFromDBus(conf.NIC)
-		if err != nil {
-			log.Fatalln("Could not fetch DNS from DBus", err)
-		}
-	} else {
-		log.Printf("Obtaining DHCP DNS server using dhcp-dns command...")
-		out, err := exec.Command("/bin/sh", "-c", conf.DHCP).Output()
-		if err != nil {
-			log.Fatalln("Failed to execute dhcp-dns:", err)
-		}
-		match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}`).Find(out)
-		if match == nil {
-			log.Fatalln("IPs not found in dhcp-dns output.")
-		}
-		upstream = string(match)
+	log.Printf("Obtaining DHCP DNS server...")
+	out, err := exec.Command("/bin/sh", "-c", conf.DHCP).Output()
+	if err != nil {
+		log.Fatalln("Failed to execute dhcp-dns:", err)
 	}
+	match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}`).Find(out)
+	if match == nil {
+		log.Fatalln("IPs not found in dhcp-dns output.")
+	}
+	upstream := string(match)
 
 	srv, err := socks5.New(&socks5.Config{
 		Resolver: NewUpstreamResolver(upstream),

@@ -26,7 +26,3 @@ Simply run `captive-browser`, log into the captive portal, and then *quit* (⌘Q
 If the binary is not found, try `$(go env GOPATH)/bin/captive-browser`.
 
 To configure the browser, open a non-Incognito window (⌘N).
-
-## `systemd-networkd` support via DBus
-
-`captive-browser` optionally supports detection of the DHCP DNS server via DBus.  This is useful for systems running systemd-network (e.g. Arch Linux), where there is no easy way to access the DHCP-supplied nameservers via the command-line.  For this to work, you must be running both `systemd-networkd` and `systemd-resolved` and provide the network interface name for your NIC that's connected to the DHCP network.  See the example in [captive-browser-systemd-chrome.toml](/captive-browser-systemd-chrome.toml).
