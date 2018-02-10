@@ -1,6 +1,15 @@
+[prune]
+  unused-packages = true
+  go-tests = true
+  non-go = true
+
 [[constraint]]
   name = "github.com/BurntSushi/toml"
   version = "0.3.0"
+
+[[constraint]]
+  name = "github.com/godbus/dbus"
+  version = "4.1.0"
 
 [[constraint]]
   branch = "master"
