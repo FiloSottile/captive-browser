@@ -18,13 +18,13 @@ browser = """
 # DNS server address. The first match of an IPv4 regex is used.
 # IPv4 only, because let's be real, it's a captive portal.
 #
-# `enp2s0` is your network interface (eth0, wlan0 ...)
+# `wlp3s0` is your network interface (eth0, wlan0 ...)
 #
 # To install the systemd-networkd-dns command, run:
 #
 #  $ go get github.com/FiloSottile/captive-browser/cmd/systemd-networkd-dns
 #
-dhcp-dns = "systemd-networkd-dns wlp3s0"
+dhcp-dns = "$(go env GOPATH)/bin/systemd-networkd-dns wlp3s0"
 
 # socks5-addr is the listen address for the SOCKS5 proxy server.
 socks5-addr = "localhost:1666"

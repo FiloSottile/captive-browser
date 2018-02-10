@@ -18,9 +18,7 @@ browser = """
 # DNS server address. The first match of an IPv4 regex is used.
 # IPv4 only, because let's be real, it's a captive portal.
 #
-# `enp2s0` is your network interface (eth0, wlan0 ...)
-#
-# for this command we have to `grep` because this program takes the first IP from the output
+# `wlan0` is your network interface.
 #
 dhcp-dns = "dhcpcd -U wlan0 | grep domain_name_servers"
 

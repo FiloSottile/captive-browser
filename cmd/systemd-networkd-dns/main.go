@@ -1,3 +1,8 @@
+// The systemd-networkd-dns command obtains the DHCP DNS server via DBus.
+//
+// For this to work, you must be running both systemd-networkd and
+// systemd-resolved and provide the network interface name for your NIC
+// that's connected to the DHCP network.
 package main
 
 import (

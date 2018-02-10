@@ -76,6 +76,9 @@ func main() {
 	log.Printf("Obtaining DHCP DNS server...")
 	out, err := exec.Command("/bin/sh", "-c", conf.DHCP).Output()
 	if err != nil {
+		if err, ok := err.(*exec.ExitError); ok {
+			os.Stderr.Write(err.Stderr)
+		}
 		log.Fatalln("Failed to execute dhcp-dns:", err)
 	}
 	match := regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}`).Find(out)
