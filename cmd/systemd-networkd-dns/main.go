@@ -17,9 +17,6 @@ import (
 	"github.com/godbus/dbus"
 )
 
-func init() {
-}
-
 func main() {
 	args := os.Args
 	flag.Usage = func() {
