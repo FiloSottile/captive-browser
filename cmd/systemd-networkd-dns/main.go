@@ -6,6 +6,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -18,9 +19,22 @@ import (
 
 func main() {
 	args := os.Args
+	flag.Usage = func() {
+		fmt.Printf(`usage: %s <interface>
+
+The systemd-networkd-dns command obtains the DHCP DNS server via DBus.
+
+For this to work, you must be running both systemd-networkd and
+systemd-resolved and provide the network interface name for your NIC
+that's connected to the DHCP network.
+`, args[0])
+		flag.PrintDefaults()
+	}
+	flag.Parse()
 	if len(args) < 2 {
-		log.Println("usage:", args[0], "<interface>")
-		log.Fatalln("error: must provide interface name for DHCP-enabled NIC")
+		log.Println("error: must provide interface name for DHCP-enabled NIC")
+		flag.Usage()
+		os.Exit(2)
 	}
 
 	dns, err := getDHCPDNSForInterfaceFromDBus(args[1])
