@@ -54,7 +54,7 @@ func (u *UpstreamResolver) Resolve(ctx context.Context, name string) (context.Co
 
 type Config struct {
 	SOCKS5Addr string `toml:"socks5-addr"`
-	Browser    string
+	Browser    string `toml:"browser"`
 	DHCP       string `toml:"dhcp-dns"`
 	BindDevice string `toml:"bind-device"`
 }
@@ -89,24 +89,22 @@ func main() {
 	}
 	upstream := string(match)
 
-	dialer := &net.Dialer{
-		Control: func(network, address string, c syscall.RawConn) error {
-			c.Control(func(fd uintptr) {
-				if conf.BindDevice != "" {
-					err := syscall.BindToDevice(int(fd), conf.BindDevice)
-					if err != nil {
-						log.Fatalln("BindToDevice", err)
-					}
+	dialer := &net.Dialer{}
+	if conf.BindDevice != "" {
+		dialer.Control = func(network, address string, c syscall.RawConn) error {
+			return c.Control(func(fd uintptr) {
+				err := syscall.BindToDevice(int(fd), conf.BindDevice)
+				if err != nil {
+					log.Fatalln("Failed BindToDevice call:", err)
 				}
 			})
-			return nil
-		},
+		}
 	}
 
 	srv, err := socks5.New(&socks5.Config{
 		Resolver: NewUpstreamResolver(upstream, dialer),
-		Dial: func(ctx context.Context, net_, addr string) (net.Conn, error) {
-			return dialer.Dial(net_, addr)
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			return dialer.DialContext(ctx, network, address)
 		},
 	})
 	if err != nil {
