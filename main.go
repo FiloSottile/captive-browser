@@ -10,6 +10,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"syscall"
 
 	"github.com/BurntSushi/toml"
 	"github.com/armon/go-socks5"
@@ -19,13 +20,13 @@ type UpstreamResolver struct {
 	r *net.Resolver
 }
 
-func NewUpstreamResolver(upstream string) *UpstreamResolver {
+func NewUpstreamResolver(upstream string, dialer *net.Dialer) *UpstreamResolver {
 	return &UpstreamResolver{
 		r: &net.Resolver{
 			PreferGo: true,
 			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 				// Redirect all Resolver dials to the upstream.
-				return (&net.Dialer{}).DialContext(ctx, network, net.JoinHostPort(upstream, "53"))
+				return dialer.DialContext(ctx, network, net.JoinHostPort(upstream, "53"))
 			},
 		},
 	}
@@ -53,8 +54,9 @@ func (u *UpstreamResolver) Resolve(ctx context.Context, name string) (context.Co
 
 type Config struct {
 	SOCKS5Addr string `toml:"socks5-addr"`
-	Browser    string
+	Browser    string `toml:"browser"`
 	DHCP       string `toml:"dhcp-dns"`
+	BindDevice string `toml:"bind-device"`
 }
 
 func main() {
@@ -87,8 +89,23 @@ func main() {
 	}
 	upstream := string(match)
 
+	dialer := &net.Dialer{}
+	if conf.BindDevice != "" {
+		dialer.Control = func(network, address string, c syscall.RawConn) error {
+			return c.Control(func(fd uintptr) {
+				err := syscall.BindToDevice(int(fd), conf.BindDevice)
+				if err != nil {
+					log.Fatalln("Failed BindToDevice call:", err)
+				}
+			})
+		}
+	}
+
 	srv, err := socks5.New(&socks5.Config{
-		Resolver: NewUpstreamResolver(upstream),
+		Resolver: NewUpstreamResolver(upstream, dialer),
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			return dialer.DialContext(ctx, network, address)
+		},
 	})
 	if err != nil {
 		log.Fatalln(err)
