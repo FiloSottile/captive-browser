@@ -29,7 +29,7 @@ dhcp-dns = "$(go env GOPATH)/bin/systemd-networkd-dns wlp3s0"
 # socks5-addr is the listen address for the SOCKS5 proxy server.
 socks5-addr = "localhost:1666"
 
-# bind-device is the interface over which DNS requests will be sent.
-# It can be used to avoid address space collisions with other interfaces
-# but it requires CAP_NET_RAW or root priveleges. Disabled by default.
+# bind-device is the interface over which outbound connections (both HTTP
+# and DNS) will be established. It can be used to avoid address space collisions
+# but it requires CAP_NET_RAW or root privileges. Disabled by default.
 #bind-device = "wlan0"
