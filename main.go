@@ -10,7 +10,6 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
-	"syscall"
 
 	"github.com/BurntSushi/toml"
 	"github.com/armon/go-socks5"
@@ -91,14 +90,7 @@ func main() {
 
 	dialer := &net.Dialer{}
 	if conf.BindDevice != "" {
-		dialer.Control = func(network, address string, c syscall.RawConn) error {
-			return c.Control(func(fd uintptr) {
-				err := syscall.BindToDevice(int(fd), conf.BindDevice)
-				if err != nil {
-					log.Fatalln("Failed BindToDevice call:", err)
-				}
-			})
-		}
+		dialer.Control = bindToDevice(conf.BindDevice)
 	}
 
 	srv, err := socks5.New(&socks5.Config{
