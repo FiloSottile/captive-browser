@@ -6,3 +6,6 @@ go:
 env:
   - GOOS=linux
   - GOOS=darwin
+script:
+  - go build ./...
+  - go test ./...
