@@ -3,6 +3,6 @@ dist: xenial
 go:
   - 1.x
   - 1.11.x
-env:
-  - GOOS=linux
-  - GOOS=darwin
+script:
+  - GOOS=linux go test ./...
+  - GOOS=darwin go test ./...
