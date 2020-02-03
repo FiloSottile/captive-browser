@@ -20,7 +20,7 @@ browser = """
 #
 # `wlp3s0` is your network interface (eth0, wlan0 ...)
 #
-dhcp-dns = "nmcli dev show wlp3s0 | grep IP4.DNS"
+dhcp-dns = "nmcli dev show | grep IP4.DNS"
 
 # socks5-addr is the listen address for the SOCKS5 proxy server.
 socks5-addr = "localhost:1666"
