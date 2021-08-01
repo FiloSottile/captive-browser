@@ -109,6 +109,8 @@ func main() {
 
 	log.Printf("Starting browser...")
 	cmd := exec.Command("/bin/sh", "-c", conf.Browser)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	cmd.Env = append(os.Environ(), "PROXY="+conf.SOCKS5Addr)
 	if err := cmd.Run(); err != nil {
 		log.Fatalln(err)
