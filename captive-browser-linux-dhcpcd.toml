@@ -5,8 +5,11 @@
 # it can run (and be waited for) alongside the default one, and that
 # it maintains no state across runs. To configure this browser open a
 # normal window in it, settings will be preserved.
+#
+# It's also possible to use chromium instead of google-chrome by replacing
+# the progam name in the command below
 browser = """
-    chromium \
+    google-chrome \
     --user-data-dir="$HOME/.chromium-captive" \
     --proxy-server="socks5://$PROXY" \
     --host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost" \
